@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Certificate of Participation</title>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@300;400&display=swap');
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: #f0f2f5;
+      font-family: 'Cinzel', serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    /* The Certificate Container */
+    #cert-container {
+      position: relative;
+      width: 900px;
+      height: 600px;
+      background: #fff;
+      background-image: url('https://raw.githubusercontent.com/francispun/blockchain-credential/main/images/ai-talk-credential-template.png');
+      background-size: cover;
+      background-position: center;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+      color: #333;
+      overflow: hidden;
+    }
+
+    /* Content Layout */
+    .content {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    /* Header Section */
+    .header-text {
+      margin-top: 110px; /* Adjust based on logo position in bg image */
+      font-size: 42px;
+      font-weight: 700;
+      color: #2c3e50;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .sub-header {
+      margin-top: 10px;
+      font-family: 'Lato', sans-serif;
+      font-size: 18px;
+      color: #555;
+      font-style: italic;
+    }
+
+    /* Receiver Name */
+    .receiver-name {
+      margin-top: 30px;
+      font-size: 52px;
+      font-weight: 700;
+      color: #d48a4e; /* Gold/Bronze color */
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 10px;
+      min-width: 400px;
+    }
+
+    /* Context Text */
+    .context-text {
+      margin-top: 20px;
+      font-family: 'Lato', sans-serif;
+      font-size: 20px;
+      color: #444;
+      max-width: 700px;
+      line-height: 1.5;
+    }
+    .bold { font-weight: bold; color: #000; }
+
+    /* Footer Section */
+    .footer {
+      position: absolute;
+      bottom: 60px;
+      width: 80%;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      font-family: 'Lato', sans-serif;
+    }
+
+    /* Left Side Footer */
+    .footer-left {
+      text-align: left;
+    }
+    .date-text { font-size: 18px; color: #333; margin-bottom: 5px; }
+    .verify-link {
+      font-size: 12px;
+      color: #666;
+      text-decoration: none;
+      border: 1px solid #ccc;
+      padding: 5px 10px;
+      border-radius: 4px;
+      background: #f9f9f9;
+      transition: all 0.3s;
+    }
+    .verify-link:hover { background: #e0e0e0; color: #000; border-color: #999; }
+
+    /* Right Side Footer */
+    .footer-right {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .signature-img {
+      height: 60px; /* Adjust based on signature image aspect ratio */
+      margin-bottom: 5px;
+      display: block;
+    }
+    .issuer-line {
+      width: 200px;
+      border-top: 1px solid #333;
+      margin-bottom: 5px;
+    }
+    .issuer-name { font-weight: bold; font-size: 18px; }
+    .issuer-title { font-size: 14px; color: #555; }
+
+    /* Status Badge */
+    #status-badge {
+      position: absolute;
+      top: 20px; right: 20px;
+      background: #eab308; /* Loading Yellow */
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-family: 'Lato', sans-serif;
+      font-size: 12px;
+      font-weight: bold;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+  </style>
+</head>
+<body>
+
+<div id="cert-container">
+  <div id="status-badge">Connecting to Blockchain...</div>
+
+  <div class="content">
+    <!-- Header -->
+    <div class="header-text">Certificate of Participation</div>
+    <div class="sub-header">This certifies that</div>
+
+    <!-- Name -->
+    <div class="receiver-name" id="name">Loading...</div>
+
+    <!-- Context -->
+    <div class="context-text">
+      has participated in <span class="bold" id="talk">...</span><br>
+      organized by <span class="bold" id="org">...</span>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <!-- Left: Date & Verification -->
+      <div class="footer-left">
+        <div class="date-text" id="date">...</div>
+        <a href="#" id="verify-url" target="_blank" class="verify-link">
+          Verify on Sepolia Etherscan ↗
+        </a>
+      </div>
+
+      <!-- Right: Signature & Issuer -->
+      <div class="footer-right">
+        <!-- Signature Image loaded from chain -->
+        <img id="sig-img" src="" alt="Signature" class="signature-img" style="display:none;"> 
+        <div class="issuer-line"></div>
+        <div class="issuer-name" id="issuer">...</div>
+        <div class="issuer-title" id="issuer-title">...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // --- CONFIGURATION ---
+  // REPLACE THIS WITH YOUR NEW DEPLOYED CONTRACT ADDRESS
+  const CONTRACT_ADDRESS = "0x015A4c436aAcB0D6af25f3D649952649C48b372c"; 
+  const RPC_URL = "https://ethereum-sepolia-rpc.publicnode.com";
+  const EXPLORER = "https://sepolia.etherscan.io";
+
+  // Updated ABI to match the new struct
+  const abi = [
+    {
+      "inputs": [{ "internalType": "uint256", "name": "id", "type": "uint256" }],
+      "name": "getData",
+      "outputs": [{
+        "components": [
+          { "internalType": "string", "name": "receiverName", "type": "string" },
+          { "internalType": "string", "name": "talkTitle", "type": "string" },
+          { "internalType": "string", "name": "organizationName", "type": "string" },
+          { "internalType": "string", "name": "eventDate", "type": "string" },
+          { "internalType": "string", "name": "issuerName", "type": "string" },
+          { "internalType": "string", "name": "issuerTitle", "type": "string" },
+          { "internalType": "string", "name": "signatureUrl", "type": "string" },
+          { "internalType": "uint256", "name": "timestamp", "type": "uint256" }
+        ],
+        "internalType": "struct AICredential.CredentialData",
+        "name": "",
+        "type": "tuple"
+      }],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ];
+
+  const provider = new ethers.providers.JsonRpcProvider(RPC_URL);
+  const contract = new ethers.Contract(CONTRACT_ADDRESS, abi, provider);
+
+  // URL Params: ?tokenID=1&key=ABC123
+  const params = new URLSearchParams(location.search);
+  const tokenID = params.get('tokenID');
+  const key = params.get('key');
+
+  // Simple access control (Optional: keep or remove based on preference)
+  // const validKeys = { "1": "ABC123", "2": "XYZ789" };
+
+  if (!tokenID) {
+    document.body.innerHTML = "<h2 style='text-align:center; margin-top:50px;'>No Token ID provided.</h2>";
+    throw "No Token ID";
+  }
+
+  async function loadCertificate() {
+    try {
+      // Fetch data from blockchain
+      const data = await contract.getData(tokenID);
+
+      // Populate HTML
+      document.getElementById('name').textContent = data.receiverName;
+      document.getElementById('talk').textContent = data.talkTitle;
+      document.getElementById('org').textContent = data.organizationName;
+      
+      document.getElementById('date').textContent = data.eventDate;
+      
+      document.getElementById('issuer').textContent = data.issuerName;
+      document.getElementById('issuer-title').textContent = data.issuerTitle;
+
+      // Handle Signature Image
+      const sigImg = document.getElementById('sig-img');
+      if (data.signatureUrl && data.signatureUrl.startsWith('http')) {
+        sigImg.src = data.signatureUrl;
+        sigImg.style.display = 'block';
+      } else {
+        // Fallback if no signature URL provided
+        sigImg.style.display = 'none';
+      }
+
+      // Set Verification Link
+      const verifyUrl = `${EXPLORER}/token/${CONTRACT_ADDRESS}?a=${tokenID}`;
+      const linkEl = document.getElementById('verify-url');
+      linkEl.href = verifyUrl;
+      linkEl.textContent = `Verified: Token #${tokenID} ↗`;
+
+      // Update Status Badge
+      const badge = document.getElementById('status-badge');
+      badge.textContent = "✓ Authenticated on Sepolia";
+      badge.style.background = "#15803d"; // Green
+
+    } catch (e) {
+      console.error(e);
+      const badge = document.getElementById('status-badge');
+      badge.textContent = "⚠ Connection Failed";
+      badge.style.background = "#b91c1c"; // Red
+      alert("Could not fetch certificate data. Check the Contract Address and Token ID.");
+    }
+  }
+
+  loadCertificate();
+</script>
+</body>
+</html>
