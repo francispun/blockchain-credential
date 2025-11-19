@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- MODIFIED VIEWPORT: Forces the browser to render at 900px width, scaling it down to fit mobile screens -->
+  <meta name="viewport" content="width=900, user-scalable=yes">
   <title>Certificate of Participation</title>
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
   <style>
@@ -17,13 +18,15 @@
       justify-content: center;
       align-items: center;
       min-height: 100vh;
+      /* Ensure horizontal scroll doesn't appear unnecessarily */
+      overflow-x: auto; 
     }
 
-    /* The Certificate Container */
+    /* The Certificate Container - Fixed Width */
     #cert-container {
       position: relative;
-      width: 900px;
-      height: 600px;
+      width: 900px;  /* Fixed width */
+      height: 600px; /* Fixed height */
       background: #fff;
       background-image: url('./images/ai-talk-credential-template.png');
       background-size: cover;
@@ -31,6 +34,8 @@
       box-shadow: 0 15px 35px rgba(0,0,0,0.15);
       color: #333;
       overflow: hidden;
+      /* Ensure it doesn't shrink */
+      flex-shrink: 0; 
     }
 
     /* Content Layout */
@@ -45,7 +50,7 @@
 
     /* Header Section */
     .header-text {
-      margin-top: 160px; /* Adjust based on logo position in bg image */
+      margin-top: 160px;
       font-size: 42px;
       font-weight: 700;
       color: #2c3e50;
@@ -76,7 +81,7 @@
       margin-top: 30px;
       font-size: 52px;
       font-weight: 700;
-      color: #d48a4e; /* Gold/Bronze color */
+      color: #d48a4e;
       border-bottom: 1px solid #ddd;
       padding-bottom: 10px;
       min-width: 400px;
@@ -129,7 +134,7 @@
       align-items: center;
     }
     .signature-img {
-      height: 60px; /* Adjust based on signature image aspect ratio */
+      height: 60px;
       margin-bottom: 5px;
       display: block;
     }
@@ -145,7 +150,7 @@
     #status-badge {
       position: absolute;
       top: 20px; right: 20px;
-      background: #eab308; /* Loading Yellow */
+      background: #eab308;
       color: white;
       padding: 8px 16px;
       border-radius: 20px;
@@ -200,12 +205,10 @@
 
 <script>
   // --- CONFIGURATION ---
-  // REPLACE THIS WITH YOUR NEW DEPLOYED CONTRACT ADDRESS
   const CONTRACT_ADDRESS = "0x015A4c436aAcB0D6af25f3D649952649C48b372c"; 
   const RPC_URL = "https://ethereum-sepolia-rpc.publicnode.com";
   const EXPLORER = "https://sepolia.etherscan.io";
 
-  // Updated ABI to match the new struct
   const abi = [
     {
       "inputs": [{ "internalType": "uint256", "name": "id", "type": "uint256" }],
@@ -233,13 +236,8 @@
   const provider = new ethers.providers.JsonRpcProvider(RPC_URL);
   const contract = new ethers.Contract(CONTRACT_ADDRESS, abi, provider);
 
-  // URL Params: ?tokenID=1&key=ABC123
   const params = new URLSearchParams(location.search);
   const tokenID = params.get('tokenID');
-  const key = params.get('key');
-
-  // Simple access control (Optional: keep or remove based on preference)
-  // const validKeys = { "1": "ABC123", "2": "XYZ789" };
 
   if (!tokenID) {
     document.body.innerHTML = "<h2 style='text-align:center; margin-top:50px;'>No Token ID provided.</h2>";
@@ -252,17 +250,13 @@
     badge.style.background = "#ca8a04";
 
     try {
-      // This line is the key: callStatic will REVERT if the token doesn't exist
-      // (only works if your contract has a require() inside getData or inherits ERC721/ERC721A)
       const data = await contract.callStatic.getData(tokenID);
 
-      // Extra safety: if all important fields are empty → probably not a real certificate
       if (!data.receiverName || data.receiverName.trim() === "" ||
           !data.talkTitle || data.talkTitle.trim() === "") {
         throw new Error("Empty certificate data");
       }
 
-      // === Everything is good → populate the certificate ===
       document.getElementById('name').textContent = data.receiverName;
       document.getElementById('talk').textContent = data.talkTitle;
       document.getElementById('org').textContent = data.organizationName;
@@ -285,12 +279,9 @@
 
     } catch (error) {
       console.error(error);
-
-      // === Token does NOT exist or data is empty ===
       badge.textContent = "✗ Invalid or Non-existent Token";
       badge.style.background = "#b91c1c";
 
-      // Show a clean "invalid" state instead of half-filled certificate
       document.getElementById('name').textContent = "Invalid Token ID";
       document.getElementById('talk').textContent = "—";
       document.getElementById('org').textContent = "—";
@@ -300,8 +291,6 @@
       document.getElementById('sig-img').style.display = 'none';
       document.getElementById('verify-url').textContent = "No verification available";
       document.getElementById('verify-url').removeAttribute('href');
-
-      // alert("This certificate does not exist.\nOnly token IDs that were actually minted can be viewed.");
     }
   }
 
