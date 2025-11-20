@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/Base64.sol"; // Available in OpenZeppelin 4.5+
 
-contract AICredential is ERC1155, Ownable {
+contract BlockchainCredential is ERC1155, Ownable {
     using Strings for uint256;
 
     struct CredentialData {
@@ -61,7 +61,7 @@ contract AICredential is ERC1155, Ownable {
         CredentialData memory data = tokenData[id];
 
         // We use the template image as the NFT preview image
-        string memory image = "ipfs://bafkreibkskrgugunbwvya4eqd3avx63p32chhjr26kzsqo2c4fric65fia";
+        string memory image = "https://raw.githubusercontent.com/francispun/blockchain-credential/refs/heads/main/images/badge.png";
 
         string memory json = string(abi.encodePacked(
             '{"name": "Certificate: ', data.receiverName, '",',
@@ -75,13 +75,5 @@ contract AICredential is ERC1155, Ownable {
         ));
 
         return string(abi.encodePacked("data:application/json;base64,", Base64.encode(bytes(json))));
-    }
-
-    function name() public pure returns (string memory) {
-        return "Blockchain Credentials";
-    }
-    
-    function symbol() public pure returns (string memory) {
-        return "BCCDT";
     }
 }
