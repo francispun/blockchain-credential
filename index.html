@@ -208,7 +208,7 @@
   // --- CONFIGURATION ---
   const CONTRACT_ADDRESS = "0x015A4c436aAcB0D6af25f3D649952649C48b372c";
   const RPC_URL = "https://ethereum-sepolia-rpc.publicnode.com";
-  const EXPLORER = "https://sepolia.etherscan.io";
+  const EXPLORER = "https://eth-sepolia.blockscout.com";
   const abi = [
     {
       "inputs": [{ "internalType": "uint256", "name": "id", "type": "uint256" }],
@@ -268,7 +268,7 @@
         sigImg.src = data.signatureUrl;
         sigImg.style.display = 'block';
       }
-      const verifyUrl = `${EXPLORER}/token/${CONTRACT_ADDRESS}?a=${tokenID}`;
+      const verifyUrl = `${EXPLORER}/token/${CONTRACT_ADDRESS}/token-instance/${tokenID}`;
       document.getElementById('verify-url').href = verifyUrl;
       document.getElementById('token-id').textContent = tokenID;
       badge.textContent = "✓ Authenticated on Blockchain";
