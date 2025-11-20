@@ -6,28 +6,7 @@
   <meta name="viewport" content="width=900, user-scalable=yes">
   <title>Certificate of Participation</title>
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
-  <script>
-  // After you successfully load the certificate data:
-  function updateVerification(tokenID) {
-    const explorerUrl = `https://sepolia.etherscan.io/token/${CONTRACT_ADDRESS}?a=${tokenID}`;
-    
-    // Update the text link
-    document.getElementById('verify-url').href = explorerUrl;
-    document.getElementById('verify-url').textContent = `Verified: Token #${tokenID}`;
-    document.getElementById('token-number').textContent = tokenID;
   
-    // Generate QR code
-    QRCode.toCanvas(document.getElementById('qr-code'), explorerUrl, {
-      width: 90,
-      margin: 1,
-      color: { dark: '#000', light: '#fff' }
-    }, (error) => { if (error) console.error(error); });
-  }
-  
-  // Call it inside your success block:
-  updateVerification(tokenID);
-  </script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@300;400&display=swap');
 
@@ -271,6 +250,41 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<script>
+  const CONTRACT_ADDRESS = "0x015A4c436aAcB0D6af25f3D649952649C48b372c";
+  const EXPLORER_BASE = "https://sepolia.etherscan.io/token/" + CONTRACT_ADDRESS + "?a=";
+
+  // This function runs when the certificate is successfully loaded
+  function renderVerificationFooter(tokenID) {
+    const explorerUrl = EXPLORER_BASE + tokenID;
+
+    // Update text link
+    document.getElementById('token-number').textContent = tokenID;
+    document.getElementById('verify-url').href = explorerUrl;
+    document.getElementById('verify-url').textContent = "Verified: Token #" + tokenID;
+
+    // Generate QR code (using toDataURL → never broken)
+    QRCode.toDataURL(explorerUrl, {
+      width: 128,
+      height: 128,
+      margin: 2,
+      color: {
+        dark: "#000000",
+        light: "#FFFFFF"
+      }
+    }, function (err, url) {
+      if (err) {
+        console.error(err);
+        return;
+      }
+      const qrImg = document.getElementById('qr-code');
+      qrImg.src = url;
+      qrImg.style.display = "block";   // make sure it’s visible
+    });
+  }
+</script>
+
 <script>
   // --- CONFIGURATION ---
   const CONTRACT_ADDRESS = "0x015A4c436aAcB0D6af25f3D649952649C48b372c"; 
@@ -340,6 +354,7 @@
       document.getElementById('date').textContent = data.eventDate;
       document.getElementById('issuer').textContent = data.issuerName;
       document.getElementById('issuer-title').textContent = data.issuerTitle;
+      renderVerificationFooter(tokenID);
 
       const sigImg = document.getElementById('sig-img');
       if (data.signatureUrl && data.signatureUrl.startsWith('http')) {
