@@ -25,6 +25,14 @@ contract BlockchainCredential is ERC1155, Ownable {
     // We don't need the URL in the constructor anymore because we generate it dynamically
     constructor() ERC1155("") Ownable(msg.sender) {}
 
+    function name() public pure returns (string memory) {
+        return "Blockchain Credentials";
+    }
+
+    function symbol() public pure returns (string memory) {
+        return "BCCD";
+    }
+
     function mint(
         address to,
         uint256 id,
