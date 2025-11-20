@@ -238,6 +238,7 @@
 
   const params = new URLSearchParams(location.search);
   const tokenID = params.get('tokenID');
+  const urlName = params.get('name')?.trim().toLowerCase();  
 
   if (!tokenID) {
     document.body.innerHTML = "<h2 style='text-align:center; margin-top:50px;'>No Token ID provided.</h2>";
@@ -251,6 +252,13 @@
 
     try {
       const data = await contract.callStatic.getData(tokenID);
+
+      if (urlName) {
+        const onChainName = data.receiverName.trim().toLowerCase();
+        if (urlName !== onChainName && urlName !== onChainName.replace(/\s+/g, '')) {
+          throw new Error("Invalid certificate link");
+        }
+      }
 
       if (!data.receiverName || data.receiverName.trim() === "" ||
           !data.talkTitle || data.talkTitle.trim() === "") {
