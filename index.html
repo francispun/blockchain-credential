@@ -40,16 +40,18 @@
       align-items: center;
       text-align: center;
     }
+
+    div#logo { text-align:center; }
     #logo img { width: 90px; position: relative; top: 50px; }
 
     /* Smaller & denser main title */
     .header-text {
-      margin-top: 150px;
-      font-size: 36px;
+      margin-top: 140px;
+      font-size: 32px;
       font-weight: 800;
       color: #2c3e50;
       text-transform: uppercase;
-      letter-spacing: 4px;
+      letter-spacing: 2px;
     }
     .sub-header {
       margin-top: 10px;
@@ -59,7 +61,7 @@
       font-style: italic;
     }
     .receiver-name {
-      margin-top: 30px;
+      margin-top: 20px;
       font-size: 52px;
       font-weight: 700;
       color: #d48a4e;
@@ -70,14 +72,14 @@
 
     /* New layout for the main text */
     .participated-line {
-      margin: 20px 0 10px;
+      margin: 20px 0 0px;
       font-family: 'Lato', sans-serif;
       font-size: 20px;
       color: #444;
       font-style: italic;
     }
     .talk-title {
-      margin: 18px 0 12px;
+      margin: 10px 0 0px;
       font-family: 'Cinzel', serif;
       font-size: 40px;
       font-weight: 700;
@@ -266,7 +268,7 @@
       const remarksEl = document.getElementById('remarks');
       if (data.remarks && data.remarks.trim() !== "") {
         remarksEl.textContent = data.remarks.trim();
-        remarksEl.style.display = 'block';
+        remarksEl.style.display = 'none';
       }
 
       // Verification link
