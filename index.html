@@ -150,6 +150,13 @@
       font-weight: bold;
       box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     }
+    
+    @media print {
+      body { background: white !important; padding: 0 !important; }
+      #cert-container { box-shadow: none !important; margin: 0 !important; }
+      iframe { display: none !important; }
+    }
+    
   </style>
 </head>
 <body>
